@@ -34,11 +34,11 @@ def answer_create(request, question_id):
             answer = form.save(commit=False)
             answer.question = question
             answer.save()
-            return redirect('pybo:detail', question_id=question.id)
+            return redirect('board:detail', question_id=question.id)
     else:
         form = AnswerForm()
     context = {'question': question, 'form': form}
-    return render(request, 'pybo/question_detail.html', context)
+    return render(request, 'board/question_detail.html', context)
 
 
 def question_create(request):
