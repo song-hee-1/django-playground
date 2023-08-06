@@ -1,9 +1,10 @@
 from django.core.paginator import Paginator
-from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
 
 from board.forms import QuestionForm, AnswerForm
 from board.models import Question
+
 
 # Create your views here.
 def index(request):
@@ -30,6 +31,7 @@ def detail(request, question_id):
     return render(request, 'board/question_detail.html', context)
 
 
+@login_required(login_url='accounts:login')
 def answer_create(request, question_id):
     """
     board 답변등록
@@ -41,6 +43,7 @@ def answer_create(request, question_id):
             answer = form.save(commit=False)
             answer.question = question
             answer.save()
+            answer.author = request.user
             return redirect('board:detail', question_id=question.id)
     else:
         form = AnswerForm()
@@ -48,6 +51,7 @@ def answer_create(request, question_id):
     return render(request, 'board/question_detail.html', context)
 
 
+@login_required(login_url='accounts:login')
 def question_create(request):
     """
     board 질문등록
@@ -58,6 +62,7 @@ def question_create(request):
             question = form.save(commit=False)
             question.author = request.user  # 추가한 속성 author 적용
             question.save()
+            question.author = request.user
             return redirect('board:index')
     else:
         form = QuestionForm()
