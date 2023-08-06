@@ -1,9 +1,12 @@
+from django.utils import timezone
+
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 from board.forms import QuestionForm, AnswerForm
-from board.models import Question
+from board.models import Question, Answer
 
 
 # Create your views here.
@@ -42,8 +45,8 @@ def answer_create(request, question_id):
         if form.is_valid():
             answer = form.save(commit=False)
             answer.question = question
-            answer.save()
             answer.author = request.user
+            answer.save()
             return redirect('board:detail', question_id=question.id)
     else:
         form = AnswerForm()
@@ -68,3 +71,78 @@ def question_create(request):
         form = QuestionForm()
     context = {'form': form}
     return render(request, 'board/question_form.html', context)
+
+
+@login_required(login_url='accounts:login')
+def question_modify(request, question_id):
+    """
+    질문수정
+    """
+    question = get_object_or_404(Question, pk=question_id)
+
+    if request.user != question.author:
+        messages.error(request, '수정권한이 없습니다')
+        return redirect('accounts:detail', question_id>=question.id)
+
+    if request.method == 'POST':
+        form = QuestionForm(request.POST, instance=question)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.author = request.user
+            question.modify_date = timezone.now()
+            question.save()
+            return redirect('board:detail', question_id=question.id)
+    else:
+        form = QuestionForm(instance=question)
+    context = {'form': form}
+    return render(request, 'board/question_form.html', context)
+
+
+@login_required(login_url='accounts:login')
+def question_delete(request, question_id):
+    """
+    질문삭제
+    """
+    question = get_object_or_404(Question, pk=question_id)
+    if request.user != question.author:
+        messages.error(request, '삭제 권한이 없습니다')
+        return redirect('board:detail', question_id=question.id)
+    question.delete()
+    return redirect('board:index')
+
+
+@login_required(login_url='accounts:login')
+def answer_modify(request, answer_id):
+    """
+    board 답변 수정
+    """
+    answer = get_object_or_404(Answer, pk=answer_id)
+    if request.user != answer.author:
+        messages.error(request, '수정 권한이 없습니다')
+        return redirect('board:detail', question_id=answer.question.id)
+
+    if request.method == 'POST':
+        form = AnswerForm(request.POST, instance=answer)
+        if form.is_valid():
+            answer = form.save(commit=False)
+            answer.author = request.user
+            answer.modify_date = timezone.now()
+            answer.save()
+            return redirect('board:detail', question_id=answer.question.id)
+    else:
+        form = AnswerForm(instance=answer)
+    context = {'answer': answer, 'form': form}
+    return render(request, 'board/answer_form.html', context)
+
+
+@login_required(login_url='accounts:login')
+def answer_delete(request, answer_id):
+    """
+    답변삭제
+    """
+    answer = get_object_or_404(Answer, pk=answer_id)
+    if request.user != answer.author:
+        messages.error(request, '삭제권한이 없습니다')
+    else:
+        answer.delete()
+    return redirect('board:detail', question_id=answer.question.id)
