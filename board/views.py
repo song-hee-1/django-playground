@@ -82,7 +82,7 @@ def question_modify(request, question_id):
 
     if request.user != question.author:
         messages.error(request, '수정권한이 없습니다')
-        return redirect('accounts:detail', question_id>=question.id)
+        return redirect('accounts:detail', question_id >= question.id)
 
     if request.method == 'POST':
         form = QuestionForm(request.POST, instance=question)
@@ -146,6 +146,7 @@ def answer_delete(request, answer_id):
     else:
         answer.delete()
     return redirect('board:detail', question_id=answer.question.id)
+
 
 @login_required(login_url='accounts:login')
 def comment_create_question(request, question_id):
@@ -264,16 +265,3 @@ def comment_delete_answer(request, comment_id):
         comment.delete()
     return redirect('board:detail', question_id=comment.answer.question.id)
 
-
-@login_required(login_url='accounts:login')
-def comment_delete_answer(request, comment_id):
-    """
-    board 답글댓글삭제
-    """
-    comment = get_object_or_404(Comment, pk=comment_id)
-    if request.user != comment.author:
-        messages.error(request, '댓글삭제권한이 없습니다')
-        return redirect('board:detail', question_id=comment.answer.question.id)
-    else:
-        comment.delete()
-    return redirect('board:detail', question_id=comment.answer.question.id)
