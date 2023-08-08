@@ -1,8 +1,26 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container my-3">
+    {% if messages %}
+    <div class="alert alert-danger my-3" role="alert">
+    {% for message in messages %}
+        <strong>{{ message.tags }}</strong>
+        <ul><li>{{ message.message }}</li></ul>
+    {%  endfor %}
+    </div>
+    {% endif %}
     <h2 class="border-bottom py-2">{{ question.subject }}</h2>
-    <div class="card my-3">
+    <div class="row my-3">
+        <div class="col-1">
+            <div class="bg-light text-center p-3 border font-weight-bolder mb-1">
+                {{ question.voter.count }}
+            </div>
+            <a href="#" data-uri="{% url 'board:vote_question' question.id %}"
+               class="recommend btn btn-sm btn-secondary btn-block my-1">추천</a>
+        </div>
+    </div>
+    <div class="col-11">
+    <div class="card">
         <div class="card-body">
             <div class="card-text" style="white-space: pre-line;">{{ question.content }}</div>
             <div class="d-flex justify-content-end">
@@ -53,6 +71,7 @@
         </div>
         {% endif %}
         </div>
+    </div>
     </div>
     <h5 class="border-bottom my-3 py-2">{{question.answer_set.count}}개의 답변이 있습니다.</h5>
     {% for answer in question.answer_set.all %}
@@ -137,6 +156,13 @@
 $(document).ready(function(){
     $('.delete').on('click', function(){
         if(confirm('정말로 삭제하시겠습니까?')) {
+            location.href = $(this).data('uri');
+        }
+    });
+});
+$(document).ready(function(){
+    $(".recommend").on('click', function(){
+        if(confirm('정말로 추천하시겠습니까?')) {
             location.href = $(this).data('uri');
         }
     });
