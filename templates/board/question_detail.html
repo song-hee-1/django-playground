@@ -75,6 +75,16 @@
     </div>
     <h5 class="border-bottom my-3 py-2">{{question.answer_set.count}}개의 답변이 있습니다.</h5>
     {% for answer in question.answer_set.all %}
+    <div class="row my-3">
+        <div class="col-1">
+            <div class="bg-light text-center p-3 border font-weight-bolder mb-1">
+                {{ answer.voter.count }}
+            </div>
+            <a href="#" data-uri="{%  url 'board:vote_answer' answer.id%}"
+               class="recommend btn btn-sm btn-secondary btn-block my-1">추천</a>
+        </div>
+    </div>
+    <div class="col-11">
     <div class="card my-3">
         <div class="card-body">
             <div class="card-text" style="white-space: pre-line;">{{ answer.content }}</div>
@@ -128,6 +138,7 @@
                class="small"><small>댓글 추가 ..</small></a>
         </div>
         </div>
+    </div>
     </div>
     {% endfor %}
     <form action="{% url 'board:answer_create' question.id %}" method="post" class="my-3">
