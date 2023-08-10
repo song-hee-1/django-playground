@@ -43,3 +43,17 @@ def detail(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     context = {'question': question}
     return render(request, 'board/question_detail.html', context)
+
+
+def page_not_found(request, exception):
+    """
+    404 Page not found
+    """
+    return render(request, 'erros/404.html', status=404)
+
+
+def server_error(request, *args, **argv):
+    """
+    500 Server Error
+    """
+    return render(request, 'erros/500.html', status=500)

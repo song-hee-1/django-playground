@@ -23,5 +23,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('board/', include('board.urls')),
     path('accounts/', include('accounts.urls')),
-    path('', base_views.index, name='index',)
+    path('', base_views.index, name='index', )
 ]
+
+handler404 = base_views.page_not_found
+handler500 = base_views.server_error
