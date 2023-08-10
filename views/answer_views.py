@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect, resolve_url
 from django.utils import timezone
 
 from board.forms import AnswerForm
@@ -20,12 +20,11 @@ def answer_create(request, question_id):
             answer.question = question
             answer.author = request.user
             answer.save()
-            return redirect('board:detail', question_id=question.id)
+            return redirect(f'{resolve_url("board:detail", question_id=question.id)}#answer_{answer.id}')
     else:
         form = AnswerForm()
     context = {'question': question, 'form': form}
     return render(request, 'board/question_detail.html', context)
-
 
 
 @login_required(login_url='accounts:login')
@@ -45,7 +44,7 @@ def answer_modify(request, answer_id):
             answer.author = request.user
             answer.modify_date = timezone.now()
             answer.save()
-            return redirect('board:detail', question_id=answer.question.id)
+            return redirect(f'{resolve_url("board:detail", question_id=answer.question.id)}#answer_{answer.id}')
     else:
         form = AnswerForm(instance=answer)
     context = {'answer': answer, 'form': form}
